@@ -4,6 +4,7 @@ from django.urls import reverse
 from category.models import Category
 from subcategory.models import SubCategory
 
+
 # Create your models here.
 
 
@@ -23,3 +24,26 @@ class Product(models.Model):
 
     def get_url(self):
         return reverse('product_detail', args=[self.category.slug, self.subcategory.slug, self.slug])
+
+
+class VariationManager(models.Manager):
+    def colors(self):
+        return super(VariationManager, self).filter(variation_category='color', is_active=True)
+
+
+variation_category_choice = {
+    ('color', 'color')
+}
+
+
+class Variation(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    variation_category = models.CharField(max_length=100, choices=variation_category_choice)
+    variation_value = models.CharField(max_length=100)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now=True)
+
+    objects = VariationManager()
+
+    def __str__(self):
+        return self.variation_value
